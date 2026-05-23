@@ -2,7 +2,14 @@
   <div class="panel">
     <div class="header">
       <span class="titulo">Señal EMG</span>
-      <span class="estado" :class="{ activo }">{{ activo ? 'EN VIVO' : 'DETENIDO' }}</span>
+      <div class="badges">
+        <span class="badge" :class="badgeSensor.clase">
+          <span class="dot" />{{ badgeSensor.texto }}
+        </span>
+        <span class="badge" :class="{ 'badge--vivo': activo, 'badge--detenido': !activo }">
+          <span class="dot" />{{ activo ? 'EN VIVO' : 'DETENIDO' }}
+        </span>
+      </div>
     </div>
     <canvas ref="canvas" />
     <div class="controles">
@@ -13,18 +20,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import Chart from 'chart.js/auto'
 
 const canvas = ref(null)
 const activo = ref(false)
+const simulacion = ref(null)   // null = cargando, true = sim, false = sensor real
 let chart = null
 let ws = null
 
 const N = 2000
 const buffer = Array(N).fill(0)
 
-onMounted(() => {
+const badgeSensor = computed(() => {
+  if (simulacion.value === null) return { texto: '···',       clase: 'badge--cargando' }
+  if (simulacion.value)          return { texto: 'SIMULACIÓN', clase: 'badge--sim' }
+  return                                { texto: 'BITALINO',   clase: 'badge--sensor' }
+})
+
+onMounted(async () => {
   chart = new Chart(canvas.value, {
     type: 'line',
     data: {
@@ -52,6 +66,14 @@ onMounted(() => {
       plugins: { legend: { display: false } },
     },
   })
+
+  try {
+    const res = await fetch('http://localhost:8000/estado')
+    const data = await res.json()
+    simulacion.value = data.simulacion
+  } catch {
+    simulacion.value = null
+  }
 })
 
 function iniciar() {

@@ -24,6 +24,11 @@ app.add_middleware(
 SIMULACION = True  # cambiar a False con el sensor conectado
 
 
+@app.get("/estado")
+def estado():
+    return {"simulacion": SIMULACION}
+
+
 def _simular_chunk(t: float, n: int) -> np.ndarray:
     tiempo = np.arange(n) / FS + t
     ruido = np.random.randn(n) * 0.02

@@ -41,16 +41,40 @@ main {
   color: #888;
 }
 
-.estado {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  color: #444;
+.badges {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
-.estado.activo {
-  color: #00e5ff;
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid transparent;
 }
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.badge--cargando { color: #555; border-color: #2a2a2a; }
+
+.badge--sim      { color: #f5a623; border-color: #3a2e14; }
+
+.badge--sensor   { color: #4caf50; border-color: #1a3a1a; }
+
+.badge--vivo     { color: #00e5ff; border-color: #003a40; }
+
+.badge--detenido { color: #444;    border-color: #2a2a2a; }
 
 canvas {
   width: 100% !important;
