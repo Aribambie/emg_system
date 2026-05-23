@@ -18,6 +18,10 @@ __pycache__/
 dist/
 build/
 
+# node
+node_modules/
+package-lock.json
+
 # IDE
 .vscode/
 .idea/
