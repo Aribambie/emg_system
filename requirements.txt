@@ -4,3 +4,7 @@ bitalino==1.2.6
 pyserial==3.5
 numpy==2.4.5
 scipy==1.17.1
+
+# backend interfaz
+fastapi[standard]
+python-dotenv
