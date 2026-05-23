@@ -25,7 +25,8 @@ import Chart from 'chart.js/auto'
 
 const canvas = ref(null)
 const activo = ref(false)
-const simulacion = ref(null)   // null = cargando, true = sim, false = sensor real
+// null = sin intentar, true = conectado, false = error
+const sensorOk = ref(null)
 let chart = null
 let ws = null
 
@@ -33,12 +34,12 @@ const N = 2000
 const buffer = Array(N).fill(0)
 
 const badgeSensor = computed(() => {
-  if (simulacion.value === null) return { texto: '···',       clase: 'badge--cargando' }
-  if (simulacion.value)          return { texto: 'SIMULACIÓN', clase: 'badge--sim' }
-  return                                { texto: 'BITALINO',   clase: 'badge--sensor' }
+  if (sensorOk.value === null)  return { texto: '···',        clase: 'badge--cargando' }
+  if (sensorOk.value)           return { texto: 'BITALINO',   clase: 'badge--sensor'  }
+  return                               { texto: 'SIN SENSOR', clase: 'badge--error'   }
 })
 
-onMounted(async () => {
+onMounted(() => {
   chart = new Chart(canvas.value, {
     type: 'line',
     data: {
@@ -66,25 +67,33 @@ onMounted(async () => {
       plugins: { legend: { display: false } },
     },
   })
-
-  try {
-    const res = await fetch('http://localhost:8000/estado')
-    const data = await res.json()
-    simulacion.value = data.simulacion
-  } catch {
-    simulacion.value = null
-  }
 })
 
 function iniciar() {
+  sensorOk.value = null
   ws = new WebSocket('ws://localhost:8000/ws/emg')
+
   ws.onmessage = ({ data }) => {
-    const { muestras } = JSON.parse(data)
-    buffer.splice(0, muestras.length)
-    buffer.push(...muestras)
-    chart.data.datasets[0].data = [...buffer]
-    chart.update('none')
+    const msg = JSON.parse(data)
+
+    if (msg.conectado) {
+      sensorOk.value = true
+      return
+    }
+    if (msg.error) {
+      sensorOk.value = false
+      activo.value = false
+      return
+    }
+    if (msg.muestras) {
+      buffer.splice(0, msg.muestras.length)
+      buffer.push(...msg.muestras)
+      chart.data.datasets[0].data = [...buffer]
+      chart.update('none')
+    }
   }
+
+  ws.onerror = () => { sensorOk.value = false }
   ws.onclose = () => { activo.value = false }
   activo.value = true
 }

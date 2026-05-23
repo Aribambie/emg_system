@@ -66,14 +66,10 @@ main {
   background: currentColor;
 }
 
-.badge--cargando { color: #555; border-color: #2a2a2a; }
-
-.badge--sim      { color: #f5a623; border-color: #3a2e14; }
-
+.badge--cargando { color: #555;    border-color: #2a2a2a; }
 .badge--sensor   { color: #4caf50; border-color: #1a3a1a; }
-
+.badge--error    { color: #f44336; border-color: #3a1414; }
 .badge--vivo     { color: #00e5ff; border-color: #003a40; }
-
 .badge--detenido { color: #444;    border-color: #2a2a2a; }
 
 canvas {
