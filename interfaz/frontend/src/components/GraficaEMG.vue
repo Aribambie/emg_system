@@ -34,9 +34,10 @@ const N = 2000
 const buffer = Array(N).fill(0)
 
 const badgeSensor = computed(() => {
-  if (sensorOk.value === null)  return { texto: '···',        clase: 'badge--cargando' }
-  if (sensorOk.value)           return { texto: 'BITALINO',   clase: 'badge--sensor'  }
-  return                               { texto: 'SIN SENSOR', clase: 'badge--error'   }
+  if (sensorOk.value === null)         return { texto: '···',        clase: 'badge--cargando'   }
+  if (sensorOk.value === 'conectando') return { texto: 'CONECTANDO', clase: 'badge--conectando' }
+  if (sensorOk.value === true)         return { texto: 'BITALINO',   clase: 'badge--sensor'     }
+  return                                      { texto: 'SIN SENSOR', clase: 'badge--error'      }
 })
 
 onMounted(() => {
@@ -76,6 +77,10 @@ function iniciar() {
   ws.onmessage = ({ data }) => {
     const msg = JSON.parse(data)
 
+    if (msg.estado === 'conectando') {
+      sensorOk.value = 'conectando'
+      return
+    }
     if (msg.conectado) {
       sensorOk.value = true
       return
